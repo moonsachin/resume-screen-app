@@ -12,7 +12,9 @@ import {
 } from "@/lib/groq";
 
 const MAX_FILE_SIZE_MB = Number(process.env.MAX_FILE_SIZE_MB) || 10;
-const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads");
+// Use /tmp directory for serverless environments (Vercel/Netlify)
+const UPLOAD_DIR = process.env.UPLOAD_DIR || "/tmp/uploads";
+const isProduction = process.env.NODE_ENV === "production";
 
 export async function POST(request: NextRequest) {
   try {
@@ -64,7 +66,12 @@ export async function POST(request: NextRequest) {
       .slice(0, 40);
     const filename = `${timestamp}-${safeName}${ext}`;
     const filePath = path.join(UPLOAD_DIR, filename);
-    const fileUrl = `/uploads/${filename}`;
+    
+    // For production (serverless), store in /tmp and use external storage URL
+    // For development, use local public/uploads
+    const fileUrl = isProduction 
+      ? `/api/files/${filename}` // Temporary - will be replaced with cloud storage
+      : `/uploads/${filename}`;
 
     // Save file to disk
     const bytes = await file.arrayBuffer();
