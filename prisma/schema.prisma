@@ -1,0 +1,174 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  RECRUITER
+}
+
+enum JobStatus {
+  DRAFT
+  OPEN
+  CLOSED
+}
+
+enum EmploymentType {
+  FULL_TIME
+  PART_TIME
+  CONTRACT
+  REMOTE
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(RECRUITER)
+  createdAt DateTime @default(now())
+
+  notes Note[]
+
+  @@map("users")
+}
+
+model Resume {
+  id              String   @id @default(cuid())
+  candidateName   String
+  email           String
+  phone           String?
+  fileUrl         String
+  fileSize        Int?
+  fileType        String?
+  extractedText   String?
+  skills          Json?
+  experienceYears Float?
+  education       Json?
+  projects        Json?
+  summary         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  matches Match[]
+
+  @@map("resumes")
+}
+
+model Job {
+  id                 String         @id @default(cuid())
+  title              String
+  company            String
+  location           String?
+  employmentType     EmploymentType @default(FULL_TIME)
+  experienceRequired Float?
+  requiredSkills     Json?
+  optionalSkills     Json?
+  salaryRange        String?
+  description        String
+  status             JobStatus      @default(DRAFT)
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+
+  matches Match[]
+
+  @@map("jobs")
+}
+
+model Match {
+  id                   String   @id @default(cuid())
+  resumeId             String
+  jobId                String
+  score                Float
+  skillMatchPercent    Float?
+  matchedSkills        Json?
+  missingSkills        Json?
+  strengths            Json?
+  weaknesses           Json?
+  experienceRelevance  String?
+  recommendation       String?
+  createdAt            DateTime @default(now())
+
+  resume Resume @relation(fields: [resumeId], references: [id], onDelete: Cascade)
+  job    Job    @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  emailLogs         EmailLog[]
+  candidatePipeline CandidatePipeline?
+  notes             Note[]
+
+  @@unique([resumeId, jobId])
+  @@map("matches")
+}
+
+enum EmailType {
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  REJECTION
+  CUSTOM
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum PipelineStage {
+  APPLIED
+  REVIEWED
+  SHORTLISTED
+  INTERVIEW_SCHEDULED
+  INTERVIEWED
+  OFFERED
+  HIRED
+  REJECTED
+}
+
+model EmailLog {
+  id          String      @id @default(cuid())
+  matchId     String
+  type        EmailType
+  subject     String
+  body        String      @db.Text
+  status      EmailStatus @default(PENDING)
+  sentAt      DateTime?
+  error       String?
+  createdAt   DateTime    @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("email_logs")
+}
+
+model CandidatePipeline {
+  id        String        @id @default(cuid())
+  matchId   String        @unique
+  stage     PipelineStage @default(APPLIED)
+  updatedAt DateTime      @updatedAt
+  createdAt DateTime      @default(now())
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+
+  @@map("candidate_pipeline")
+}
+
+model Note {
+  id        String   @id @default(cuid())
+  matchId   String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  match Match @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("notes")
+}
