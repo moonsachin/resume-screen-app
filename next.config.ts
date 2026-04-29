@@ -5,10 +5,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
-  // Hide Next.js development indicators
-  devIndicators: {
-    buildActivityPosition: 'bottom-right',
-  },
   // Environment variables
   env: {
     DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
