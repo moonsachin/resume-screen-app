@@ -3,12 +3,26 @@
 import "dotenv/config";
 import { defineConfig } from "prisma/config";
 
+// Load all environment variables
+const {
+  DB_CONNECTION_STRING,
+  DATABASE_URL,
+  NEXTAUTH_SECRET,
+  NEXTAUTH_URL,
+  GROQ_API_KEY,
+  RESEND_API_KEY,
+  UPLOAD_DIR,
+  MAX_FILE_SIZE_MB,
+  NEXT_PUBLIC_MAX_FILE_SIZE_MB,
+} = process.env;
+
 export default defineConfig({
   schema: "prisma/schema.prisma",
   migrations: {
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DB_CONNECTION_STRING"],
+    // Use DB_CONNECTION_STRING, fallback to DATABASE_URL for compatibility
+    url: DB_CONNECTION_STRING || DATABASE_URL || "",
   },
 });
