@@ -11,7 +11,7 @@ const nextConfig: NextConfig = {
   },
   // Environment variables
   env: {
-    DATABASE_URL: process.env.DATABASE_URL,
+    DB_CONNECTION_STRING: process.env.DB_CONNECTION_STRING,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     GROQ_API_KEY: process.env.GROQ_API_KEY,
