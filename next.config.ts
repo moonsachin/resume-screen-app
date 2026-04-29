@@ -7,9 +7,17 @@ const nextConfig: NextConfig = {
   },
   // Hide Next.js development indicators
   devIndicators: {
-    appIsrStatus: false,
-    buildActivity: false,
     buildActivityPosition: 'bottom-right',
+  },
+  // Environment variables
+  env: {
+    DATABASE_URL: process.env.DATABASE_URL,
+    NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
+    NEXTAUTH_URL: process.env.NEXTAUTH_URL,
+    GROQ_API_KEY: process.env.GROQ_API_KEY,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    UPLOAD_DIR: process.env.UPLOAD_DIR,
+    MAX_FILE_SIZE_MB: process.env.MAX_FILE_SIZE_MB,
   },
 };
 
